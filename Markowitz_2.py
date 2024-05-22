@@ -75,6 +75,12 @@ class MyPortfolio:
         TODO: Complete Task 4 Below
         """
 
+        dates = [date for date in self.price.index]
+
+        for i in range (0, len(dates)):
+            self.portfolio_weights.loc[dates[i], assets] = [0] * 11
+            self.portfolio_weights.loc[dates[i], assets[np.argmax(self.returns.loc[dates[i], assets])]] = 1
+
         """
         TODO: Complete Task 4 Above
         """
