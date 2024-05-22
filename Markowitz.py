@@ -66,7 +66,9 @@ class EqualWeightPortfolio:
         """
         TODO: Complete Task 1 Below
         """
-
+        for asset in assets:
+            if asset != "SPY":
+                self.portfolio_weights[asset] = [1/11] * 1319
         """
         TODO: Complete Task 1 Above
         """
@@ -114,9 +116,22 @@ class RiskParityPortfolio:
         # Calculate the portfolio weights
         self.portfolio_weights = pd.DataFrame(index=df.index, columns=df.columns)
 
+        from datetime import datetime
+
         """
         TODO: Complete Task 2 Below
         """
+
+        start_date = datetime(2019, 1, 2)
+        end_date = datetime(2024, 3, 28)
+        dates = []
+        for date in pd.date_range(start=start_date, end=end_date):
+            if date in self.portfolio_weights.index:
+                dates.append(date)
+        for i in range (self.lookback + 1, len(dates)):
+            stds = [1 / np.std(df_returns.loc[dates[i - self.lookback]:dates[i - 1], asset]) for asset in assets]
+            for j in range (0, len(assets)):
+                self.portfolio_weights.loc[dates[i], assets[j]] = stds[j] / np.sum(stds)
 
         """
         TODO: Complete Task 2 Above
@@ -192,11 +207,12 @@ class MeanVariancePortfolio:
 
                 # Sample Code: Initialize Decision w and the Objective
                 # NOTE: You can modify the following code
-                w = model.addMVar(n, name="w", ub=1)
-                model.setObjective(w.sum(), gp.GRB.MAXIMIZE)
+                w = model.addMVar(n, name="w", lb=0)
+                model.addConstr(w.sum() == 1)
+                model.setObjective(mu @ w - gamma / 2 * w.T @ Sigma @ w, gp.GRB.MAXIMIZE)
 
                 """
-                TODO: Complete Task 3 Below
+                TODO: Complete Task 3 Above
                 """
                 model.optimize()
 
